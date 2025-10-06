@@ -1,8 +1,11 @@
 import random
+import time
 
 print("4 Gewinnt")
 print("Die Leisten sind von 0-6 durchnummeriert.\nWenn du dran bist gib eine Zahl an, dort wird dann dein O sein.")
 print("Viel Glück\n"+20*"-")
+time.sleep(3)
+compPlayer = input("Willst du gegen einen Computer Spielen?\n> ").lower()
 
 playeroptions = ["X", "O"]
 player = random.choice(playeroptions)
@@ -40,11 +43,26 @@ def boardFull():
 
 
 while True:
-    printBoard()
-    col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))
-    if col < 0 or col >= COLS or not dropPiece(col, player):
-        print("Ungültige Eingabe, erneut")
-        continue
+    if compPlayer != "ja":
+        printBoard()
+        col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))
+        
+        if col < 0 or col >= COLS or not dropPiece(col, player):
+            print("Ungültige Eingabe, erneut")
+            continue
+    
+    elif player == "O":
+        col = random.randint(0,6)
+        if col < 0 or col >= COLS or not dropPiece(col, player):
+            continue
+    
+    elif player == "X":
+        printBoard()
+        col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))
+        if col < 0 or col >= COLS or not dropPiece(col, player):
+            print("Ungültige Eingabe, erneut")
+            continue
+        
     if checkWinner(player):
         printBoard()
         print(f"Spieler {player} hat gewonnen!")

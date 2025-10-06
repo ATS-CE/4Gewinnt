@@ -18,12 +18,12 @@ def printBoard():
   
 def dropPiece(col, piece):
     for row in reversed(board):
-        if row(col) ==" ":
-            row(col) = piece
+        if row[col] ==" ":
+            row[col] = piece
             return True
     return False
 
-def checkWinner:
+def checkWinner():
     for r in range(ROWS):
         for c in range(COLS - 3):
             if all(board[r][c+i] == piece for i in range(4)):
@@ -34,7 +34,7 @@ def checkWinner:
                 return True
     return False
 
-def boardFull:
+def boardFull():
     return all(board[0][c]!= " " for c in range (COLS))
 
 player = "X"

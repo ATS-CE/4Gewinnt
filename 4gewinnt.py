@@ -15,7 +15,7 @@ player = random.choice(playeroptions)
 difficulty = 0
 if compPlayer == "ja":
     while difficulty == 0:
-        difficulty = int(input("nenne die Schwierigkeit von 1-7\nJe höher die Schwierigkeit desto länger braucht aber auch der Computer\n> "))
+        difficulty = int(input("nenne die Schwierigkeit von 1-5\nJe höher die Schwierigkeit desto länger braucht aber auch der Computer\n> "))
         if difficulty <= 0 or difficulty >= 8:
             print("Ungültige Eingabe")
         else:
@@ -84,7 +84,7 @@ def evaluate_board(board, piece):
     score = 0
 
     center_column = [board[r][COLS // 2] for r in range(ROWS)]
-    score += center_column.count(piece)/4*difficulty
+    score += center_column.count(piece)
     
     def count_windows(line):
         nonlocal score
@@ -99,16 +99,15 @@ def evaluate_board(board, piece):
         if window.count(opponent) == 4 and window.count(" ") == 0:
             score -= 10000
         elif window.count(opponent) == 3 and window.count(" ") == 1:
-            score -= 300
+            score -= 100
         elif window.count(opponent) == 2 and window.count(" ") == 2:
             score -= 40
 
     for r in range(ROWS):
         row = [board[r][c] for c in range(COLS)]
         count_windows(row)
-
     for c in range(COLS):
-        col = [board[r][c] for c in range(COLS)]
+        col = [board[r][c] for r in range(ROWS)]
         count_windows(col)
 
     for r in range(ROWS - 3):
@@ -119,6 +118,24 @@ def evaluate_board(board, piece):
             count_windows(diag2)
 
     return score
+
+# looking for an immediate threat or win
+def get_immediate_win_or_block(board, piece):
+    valid_moves = get_valid_moves(board)
+    opponent = "O" if piece == "X" else "X"
+    
+# Winning move
+    for col in valid_moves:
+        temp_board = simulate_move(board, col, piece)
+        if checkWinner(piece):
+            return col
+# Blocking move
+    for col in valid_moves:
+        temp_board = simulate_move(board, col, opponent)
+        if checkWinner(opponent):
+            return col
+    
+    return None
 
 
 # Computer logic 
@@ -177,7 +194,9 @@ while True:
     
     elif player == "O":
         print("Computer denkt nach...")
-        col, _ = minimax(board, difficulty, True, "O", -float('inf'), float('inf'))
+        col = get_immediate_win_or_block(board, "O")
+        if col is None:
+            col, _ = minimax(board, difficulty, True, "O", -float('inf'), float('inf'))
         if col is not None:
             dropPiece(col, "O")
         else:

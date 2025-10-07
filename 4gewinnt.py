@@ -68,6 +68,44 @@ def boardFull():
 def get_valid_moves(board):
     return [c for c in range(COLS) if board[0][c] == " "]
 
+# Prefers the center column if no threat is close and if threat is there blocks
+def evaluate_board(board, piece):
+    opponent = "O" if piece == "X" else "X"
+    score = 0
+
+    center_column = [board[r][COLS // 2] for r in range(ROWS)]
+    score += center_column.count(piece) * 3
+
+    def count_windows(line):
+        nonlocal score
+        for i in range(len(line) - 3):
+            window = line[i:i+4]
+            if window.count(piece) == 4:
+                score += 100
+            elif window.count(piece) == 3 and window.count(" ") == 1:
+                score += 5
+            elif window.count(piece) == 2 and window.count(" ") == 2:
+                score += 2
+            if window.count(opponent) == 3 and window.count(" ") == 1:
+                score -= 4
+
+    for r in range(ROWS):
+        count_windows(board[r])
+
+    for c in range(COLS):
+        col = [board[r][c] for r in range(ROWS)]
+        count_windows(col)
+
+    for r in range(ROWS - 3):
+        for c in range(COLS - 3):
+            diag1 = [board[r+i][c+i] for i in range(4)]
+            diag2 = [board[r+3-i][c+i] for i in range(4)]
+            count_windows(diag1)
+            count_windows(diag2)
+
+    return score
+
+
 # Computer logic 
 def minimax(board, depth, maximizing, piece, alpha, beta):
     valid_moves = get_valid_moves(board)
@@ -124,7 +162,11 @@ while True:
     elif player == "O":
         print("Computer denkt nach...")
         col, _ = minimax(board, 4, True, "O", -float('inf'), float('inf'))
-        continue
+        if col is not None:
+            dropPiece(col, "O")
+        else:
+            print("Kein gültiger Zug gefunden!")
+            break
     
     elif player == "X":
         printBoard()

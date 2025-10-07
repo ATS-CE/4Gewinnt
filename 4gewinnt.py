@@ -14,7 +14,6 @@ player = random.choice(playeroptions)
 
 difficulty = 0
 if compPlayer == "ja":
-    player = "X"
     while difficulty == 0:
         difficulty = int(input("nenne die Schwierigkeit von 1-7\nJe höher die Schwierigkeit desto länger braucht aber auch der Computer\n> "))
         if difficulty <= 0 or difficulty >= 8:
@@ -85,35 +84,31 @@ def evaluate_board(board, piece):
     score = 0
 
     center_column = [board[r][COLS // 2] for r in range(ROWS)]
-    score += center_column.count(piece) * 1.5
-    center_column = [board[r][(COLS // 2)+1] for r in range(ROWS)]
-    score += center_column.count(piece)
-    center_column = [board[r][(COLS // 2)-1] for r in range(ROWS)]
-    score += center_column.count(piece)
+    score += center_column.count(piece)/4*difficulty
     
     def count_windows(line):
         nonlocal score
-        for i in range(len(line) - 3):
+        for i in range(len(line)-3):
             window = line[i:i+4]
-        if window.count(piece) == 4:
-            score += 1000
+        if window.count(piece) == 4 and window.count(" ") == 0:
+            score += 100
         elif window.count(piece) == 3 and window.count(" ") == 1:
             score += 50
         elif window.count(piece) == 2 and window.count(" ") == 2:
             score += 5
-
-        if window.count(opponent) == 4:
-            score -= 2000
+        if window.count(opponent) == 4 and window.count(" ") == 0:
+            score -= 10000
         elif window.count(opponent) == 3 and window.count(" ") == 1:
-            score -= 1000
+            score -= 300
         elif window.count(opponent) == 2 and window.count(" ") == 2:
-            score -= 15
+            score -= 40
 
     for r in range(ROWS):
-        count_windows(board[r])
+        row = [board[r][c] for c in range(COLS)]
+        count_windows(row)
 
     for c in range(COLS):
-        col = [board[r][c] for r in range(ROWS)]
+        col = [board[r][c] for c in range(COLS)]
         count_windows(col)
 
     for r in range(ROWS - 3):
@@ -129,6 +124,7 @@ def evaluate_board(board, piece):
 # Computer logic 
 def minimax(board, depth, maximizing, piece, alpha, beta):
     valid_moves = get_valid_moves(board)
+    valid_moves = sorted(valid_moves, key=lambda c: abs(COLS//2 - c))
     is_terminal = checkWinner("X") or checkWinner("O") or boardFull()
 
     if depth == 0 or is_terminal:
@@ -138,7 +134,7 @@ def minimax(board, depth, maximizing, piece, alpha, beta):
             elif checkWinner("O" if piece == "X" else "X"):
                 return (None, -2000000)
             else:  # Unentschieden
-                return (None, 0)
+                return (None, -1)
         else:
             return (None, evaluate_board(board, piece))
 

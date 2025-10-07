@@ -16,11 +16,7 @@ difficulty = 0
 if compPlayer == "ja":
     while difficulty == 0:
         difficulty = int(input("nenne die Schwierigkeit von 1-5\nJe höher die Schwierigkeit desto länger braucht aber auch der Computer\n> "))
-<<<<<<< HEAD
-        if difficulty <= 0 or difficulty >= 8:
-=======
         if difficulty <= 0 or difficulty >= 6:
->>>>>>> cfeb695 (Reworked immediate decisionmaking when threat shows up)
             print("Ungültige Eingabe")
         else:
             print(20*"-")
@@ -126,21 +122,6 @@ def evaluate_board(board, piece):
 def get_immediate_win_or_block(board, piece):
     valid_moves = get_valid_moves(board)
     opponent = "O" if piece == "X" else "X"
-<<<<<<< HEAD
-    
-# Winning move
-    for col in valid_moves:
-        temp_board = simulate_move(board, col, piece)
-        if checkWinner(piece):
-            return col
-# Blocking move
-    for col in valid_moves:
-        temp_board = simulate_move(board, col, opponent)
-        if checkWinner(opponent):
-            return col
-    
-    return None
-=======
     for col in valid_moves:
         temp_board = simulate_move(board, col, piece)
         if checkWinner(piece, temp_board):
@@ -149,8 +130,6 @@ def get_immediate_win_or_block(board, piece):
         temp_board = simulate_move(board, col, opponent)
         if checkWinner(opponent, temp_board):
             return col
->>>>>>> cfeb695 (Reworked immediate decisionmaking when threat shows up)
-
 
 # Computer logic 
 def minimax(board, depth, maximizing, piece, alpha, beta):
@@ -204,6 +183,7 @@ while True:
         col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))
         if col < 0 or col >= COLS or not dropPiece(col, player):
             print("Ungültige Eingabe, erneut")
+            noPlayerSwitching = 1
             continue
     
     elif player == "O":
@@ -219,13 +199,21 @@ while True:
     
     elif player == "X":
         printBoard()
-        col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))
-        if col < 0 or col >= COLS or not dropPiece(col, player):
+        try:
+            col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))
+            if col < 0 or col >= COLS or not dropPiece(col, player):
+                print("Ungültige Eingabe, erneut")
+                noPlayerSwitching = 1
+                continue
+        except:
             print("Ungültige Eingabe, erneut")
-            continue
-        
+            noPlayerSwitching = 1
+            
     if checkWinner(player, board):
         printBoard()
         print(f"Spieler {player} hat gewonnen!")
         break
-    player = "O" if player == "X" else "X"
+    if noPlayerSwitching == 0:
+        player = "O" if player == "X" else "X"
+    else:
+        noPlayerSwitching = 0

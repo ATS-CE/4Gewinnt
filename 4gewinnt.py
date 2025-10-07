@@ -9,17 +9,18 @@ time.sleep(3)
 compPlayer = input("Willst du gegen einen Computer Spielen?\n> ").lower()
 print(20*"-")
 
+playeroptions = ["X", "O"]
+player = random.choice(playeroptions)
+
 difficulty = 0
 if compPlayer == "ja":
+    player = "X"
     while difficulty == 0:
         difficulty = int(input("nenne die Schwierigkeit von 1-7\nJe höher die Schwierigkeit desto länger braucht aber auch der Computer\n> "))
         if difficulty <= 0 or difficulty >= 8:
             print("Ungültige Eingabe")
         else:
             print(20*"-")
-
-playeroptions = ["X", "O"]
-player = random.choice(playeroptions)
 
 ROWS = 6
 COLS = 7
@@ -85,7 +86,11 @@ def evaluate_board(board, piece):
 
     center_column = [board[r][COLS // 2] for r in range(ROWS)]
     score += center_column.count(piece) * 1.5
-
+    center_column = [board[r][(COLS // 2)+1] for r in range(ROWS)]
+    score += center_column.count(piece)
+    center_column = [board[r][(COLS // 2)-1] for r in range(ROWS)]
+    score += center_column.count(piece)
+    
     def count_windows(line):
         nonlocal score
         for i in range(len(line) - 3):
@@ -100,9 +105,9 @@ def evaluate_board(board, piece):
         if window.count(opponent) == 4:
             score -= 2000
         elif window.count(opponent) == 3 and window.count(" ") == 1:
-            score -= 200
+            score -= 1000
         elif window.count(opponent) == 2 and window.count(" ") == 2:
-            score -= 10
+            score -= 15
 
     for r in range(ROWS):
         count_windows(board[r])
@@ -131,7 +136,7 @@ def minimax(board, depth, maximizing, piece, alpha, beta):
             if checkWinner(piece):
                 return (None, 1000000)
             elif checkWinner("O" if piece == "X" else "X"):
-                return (None, -1000000)
+                return (None, -2000000)
             else:  # Unentschieden
                 return (None, 0)
         else:
@@ -176,7 +181,7 @@ while True:
     
     elif player == "O":
         print("Computer denkt nach...")
-        col, _ = minimax(board, 5, True, "O", -float('inf'), float('inf'))
+        col, _ = minimax(board, difficulty, True, "O", -float('inf'), float('inf'))
         if col is not None:
             dropPiece(col, "O")
         else:

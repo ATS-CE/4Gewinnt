@@ -178,6 +178,7 @@ def minimax(board, depth, maximizing, piece, alpha, beta):
 
 # Gameloop
 while True:
+    noPlayerSwitching = 0
     if compPlayer != "ja":
         printBoard()
         col = int(input(f"Spieler {player} wähle eine Spalte (0-{COLS-1})\n> "))

@@ -1,0 +1,11 @@
+# requirements.txt (Python 3.12-friendly)
+
+# Flask 2.2.x can be finicky on 3.12; 3.0+ is safe.
+Flask>=3.0,<3.1
+
+# NumPy 1.26.4 is the last 1.x that supports 3.12 and is broadly compatible.
+numpy==1.26.4
+
+# gunicorn is Unix-only; skip on Windows and use waitress locally.
+gunicorn>=21 ; sys_platform != "win32"
+waitress>=2.1 ; sys_platform == "win32"

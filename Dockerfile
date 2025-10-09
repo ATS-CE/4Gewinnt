@@ -1,9 +1,19 @@
-# Single-stage distroless Python image
+# ---- Build stage ----
+FROM python:3.12-slim AS builder
+WORKDIR /app
+
+COPY requirements.txt .
+RUN pip install --no-cache-dir --no-compile --target=/libs -r requirements.txt
+
+COPY . .
+
+# ---- Runtime stage (distroless) ----
 FROM gcr.io/distroless/python3-debian12:nonroot
 WORKDIR /app
 
-# copy only the script we need
-COPY 4gewinnt.py /app
+COPY --from=builder /libs /libs
+COPY --from=builder /app /app
 
-# run Python unbuffered so prints appear immediately in -it sessions
-ENTRYPOINT ["python3", "-u", "4gewinnt.py"]
+ENV PYTHONPATH="/libs"
+
+CMD ["-m", "app"]

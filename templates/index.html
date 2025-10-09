@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>4 Gewinnt</title>
+    <style>
+        table { border-collapse: collapse; margin: 20px auto; }
+        td { width: 50px; height: 50px; text-align: center; font-size: 2em; border: 1px solid #333; cursor: pointer; }
+        .X { color: red; }
+        .O { color: yellow; }
+        #status { text-align: center; margin: 20px; font-size: 1.2em; }
+        #depth { text-align: center; margin: 10px auto; }
+        button { margin: 10px auto; display: block; }
+    </style>
+</head>
+<body>
+    <h1 style="text-align:center;">4 Gewinnt</h1>
+    <div id="status">Current Player: {{ current_player }}</div>
+    <div id="depth">
+        <label for="depth">AI Depth:</label>
+        <input type="number" id="depth" name="depth" value="3" min="1" max="10">
+    </div>
+    <table id="board">
+        {% for row in board %}
+        <tr>
+            {% for cell in row %}
+            <td class="{{ cell }}">{{ cell }}</td>
+            {% endfor %}
+        </tr>
+        {% endfor %}
+    </table>
+    <button onclick="resetGame()">Reset Game</button>
+    <script>
+        function makeMove(col) {
+            const depth = document.getElementById('depth').value;
+            fetch('/move', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ column: col, depth: depth })
+            })
+            .then(res => res.json())
+            .then(data => {
+                updateBoard(data.board);
+                if (data.status === 'win') {
+                    document.getElementById('status').textContent = `Player ${data.player} wins!`;
+                    document.querySelectorAll('#board td').forEach(td => td.removeEventListener('click', onCellClick));
+                } else if (data.status === 'draw') {
+                    document.getElementById('status').textContent = 'Draw!';
+                } else {
+                    document.getElementById('status').textContent = `Current Player: X`;
+                }
+            });
+        }
+
+        function onCellClick(event) {
+            const col = event.target.cellIndex;
+            makeMove(col);
+        }
+
+        document.querySelectorAll('#board td').forEach(td => {
+            td.addEventListener('click', onCellClick);
+        });
+
+        function updateBoard(board) {
+            const rows = document.querySelectorAll('#board tr');
+            for (let r = 0; r < board.length; r++) {
+                const cells = rows[r].children;
+                for (let c = 0; c < board[r].length; c++) {
+                    cells[c].textContent = board[r][c];
+                    cells[c].className = board[r][c];
+                }
+            }
+        }
+
+        function resetGame() {
+            fetch('/reset', { method: 'POST' })
+            .then(() => location.reload());
+        }
+    </script>
+</body>
+</html>

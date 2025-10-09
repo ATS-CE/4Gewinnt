@@ -1,0 +1,10 @@
+services:
+  4gewinnt:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: 4gewinnt:latest
+    container_name: 4gewinnt
+    stdin_open: true    # keep STDIN open for interactive input
+    tty: true           # allocate a pseudo-TTY so input/output works in terminal
+    restart: "no"

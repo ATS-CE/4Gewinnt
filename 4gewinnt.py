@@ -66,7 +66,7 @@ def checkWinner(piece, board_to_check):
     for r in range(3, ROWS):
         for c in range(COLS - 3):
             if all(board_to_check[r-i][c+i] == piece for i in range(4)):
-                return True    
+                return True
     return False
 
 # checking if board is full then game concluded
@@ -84,7 +84,7 @@ def evaluate_board(board, piece):
 
     center_column = [board[r][COLS // 2] for r in range(ROWS)]
     score += center_column.count(piece)
-    
+
     def count_windows(line):
         nonlocal score
         for i in range(len(line)-3):
@@ -131,7 +131,7 @@ def get_immediate_win_or_block(board, piece):
         if checkWinner(opponent, temp_board):
             return col
 
-# Computer logic 
+# Computer logic
 def minimax(board, depth, maximizing, piece, alpha, beta):
     valid_moves = get_valid_moves(board)
     valid_moves = sorted(valid_moves, key=lambda c: abs(COLS//2 - c))
@@ -186,7 +186,7 @@ while True:
             print("Ungültige Eingabe, erneut")
             noPlayerSwitching = 1
             continue
-    
+
     elif player == "O":
         print("Computer denkt nach...")
         col = get_immediate_win_or_block(board, "O")
@@ -197,7 +197,7 @@ while True:
         else:
             print("Kein gültiger Zug gefunden!")
             break
-    
+
     elif player == "X":
         printBoard()
         try:
@@ -209,7 +209,7 @@ while True:
         except:
             print("Ungültige Eingabe, erneut")
             noPlayerSwitching = 1
-            
+
     if checkWinner(player, board):
         printBoard()
         print(f"Spieler {player} hat gewonnen!")
